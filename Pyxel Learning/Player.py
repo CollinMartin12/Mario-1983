@@ -1,3 +1,7 @@
+import pyxel
+import Constants
+
+
 class Player:
     """
     x (float): x - coordinate of Mario
@@ -5,8 +9,8 @@ class Player:
     """
 
     def __init__(self, x, y):
-        self.x = 0
-        self.y = 0
+        self.x = x
+        self.y = y
         self.dx = 1.0
         self.dy = 0
         self.direction = 1
@@ -38,6 +42,7 @@ class Player:
                 self.jumping = False
                 self.y = FLOOR
                 self.dy = 0
+
     def move(self, direction):
         if direction == "right":
             self.x += self.dx
@@ -45,7 +50,6 @@ class Player:
         elif direction == "left":
             self.x -= self.dx
             self.direction = -1  # Set direction to left
-
 
     def draw(self):
 
