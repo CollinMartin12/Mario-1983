@@ -1,4 +1,4 @@
-class Mario:
+class Player:
     """
     x (float): x - coordinate of Mario
     y (float): y - coordinate of Mario
@@ -48,6 +48,6 @@ class Mario:
 
 
     def draw(self):
-        pyxel.cls(0)  # Clear the screen
+
         pyxel.blt(self.x, self.y, 0, 0, 0, 16 * self.direction, 16, colkey=0)
 
