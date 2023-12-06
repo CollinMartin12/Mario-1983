@@ -11,26 +11,16 @@ class Board:
     """This class contains the necessary information to
     represent the board"""
 
-    def __init__(self, width: int, height: int):
+    def __init__(self):
         """These parameters are the width and height of the board"""
         # Initialize the object
         self.width = width
         self.height = height
-
-        # This block initializes pyxel
-        # The first thing we need to do is create the screen, see the API
-        # for more parameters
-        pyxel.init(self.width, self.height, title="Mario Bros")
-
-        # Load the pyxres file we are going to use
-        # pyxel.load("my_resource.pyxres")
-        # If we want to load Mario from a png
-        # pyxel.image(1).load(0, 0, "my_resource.pyxres")
-
-        # Create Mario in the middle of the screen at x and y = 200
-        # Make it private so that only the board can view and change it
-        self.__mario = Mario(*Constants.MARIO_INITIAL)
-
+        self.Player = Player(self.width,self.height)
+        self.enemies = []
+        self.highscore = 0
+        self.screen = "Start Screen"
+  
         # Create the blocks
         self.__blocks = []
         for element in Constants.BLOCK_INITIAL:
