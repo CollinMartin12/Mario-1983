@@ -11,14 +11,22 @@ class Player:
     def __init__(self, x, y):
         self.x = x
         self.y = y
-        self.dx = 1.0
+        self.dx = 2.0
         self.dy = 0
         self.direction = 1
         self.running = False
         self.jumping = False
         self.gravity = 0.5  # Adjust gravity for jumping/falling
-        self.jump_strength = -6  # Adjust jump strength
+        self.jump_strength = -8  # Adjust jump strength
         self.lives = 3
+
+    @property
+    def width(self):
+        return 16
+
+    @property
+    def height(self):
+        return 14
 
     def update(self):
         if pyxel.btn(pyxel.KEY_RIGHT):
@@ -30,7 +38,7 @@ class Player:
         else:
             self.running = False
 
-        if pyxel.btnp(pyxel.KEY_SPACE) and not self.jumping:
+        if pyxel.btnp(pyxel.KEY_SPACE) and not self.jumping or pyxel.btnp(pyxel.KEY_UP) and not self.jumping:
             self.jumping = True
             self.dy = self.jump_strength
 
@@ -38,9 +46,9 @@ class Player:
             self.dy += self.gravity
             self.y += self.dy
 
-            if self.y >= FLOOR:
+            if self.y >= Constants.FLOOR:
                 self.jumping = False
-                self.y = FLOOR
+                self.y = Constants.FLOOR
                 self.dy = 0
 
     def move(self, direction):
@@ -51,7 +59,5 @@ class Player:
             self.x -= self.dx
             self.direction = -1  # Set direction to left
 
-    def draw(self):
-
-        pyxel.blt(self.x, self.y, 0, 0, 0, 16 * self.direction, 16, colkey=0)
-
+    def sprite(self):
+        return Constants.MARIO_SPRITE
