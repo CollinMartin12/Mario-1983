@@ -10,7 +10,7 @@ class Board:
     represent the board"""
 
     def __init__(self):
-        """These parameters are the width and height of the board"""
+
 
         self.Player = Player(self.width, self.height)
         self.enemies = []
@@ -20,32 +20,34 @@ class Board:
         # Create the blocks
         self.blocks = []
 
+        self.__mario = Player(* Constants.MARIO_INITIAL)
+
         for element in Constants.BLOCK_INITIAL:
             self.blocks.append(Block(*element))
 
 
+
+
+
     @property
     def width(self) -> int:
-        return 254
+        return 256
     @property
     def height(self) -> int:
-        return 254
-
-
-
-    def update(self):
-        self.Player.update()
+        return 200
 
 
     def __drawBlocks(self):
-        for block in self.blocks:
-            block.draw()
+        for element in self.blocks:
+            pyxel.blt(element.x, element.y, *element.sprite, colkey=0)
 
     def __drawMario(self):
-        self.Player.draw()
+        pyxel.blt(self.__mario.x, self.__mario.y, * self.__mario.sprite())
 
 
     def draw(self):
+        pyxel.cls(0)
         self.__drawMario()
         self.__drawBlocks()
-
+    def update(self):
+        self.__mario.update()
