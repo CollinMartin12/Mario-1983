@@ -1,9 +1,7 @@
 import Constants
-from Mario import Mario
 import pyxel
 from Block import Block
 from Player import Player
-from Enemy import Enemy
 import random
 from Mushroom import Mushroom
 from Crab import Crab
@@ -51,10 +49,106 @@ class Board:
         for enemy in self.enemies:
             enemy.draw()
 
+    def check_collisions(self, block1, block2):
+        return (
+                block1.x < block2.x + block2.width
+                and block1.x + block1.width > block2.x
+                and block1.y < block2.y + block2.height
+                and block1.y + block1.height > block2.y
+        )
+
+    def check_all_collisions(self, block):
+        if self.check_collisions(self.__mario, block):
+            overlap_left = (block.x + block.width) - self.__mario.x
+            overlap_right = (self.__mario.x + self.__mario.width) - block.x
+            overlap_top = (block.y + block.height) - self.__mario.y
+            overlap_bottom = (self.__mario.y + self.__mario.height) - block.y
+
+            min_overlap = min(overlap_left, overlap_right, overlap_top, overlap_bottom)
+
+            if min_overlap == overlap_left:
+                self.__mario.x = block.x + self.__mario.width
+
+            if min_overlap == overlap_right:
+                self.__mario.x = block.x - self.__mario.width
+
+            if min_overlap == overlap_bottom:
+                self.__mario.y = block.y - self.__mario.height
+                self.__mario.dy = 0
+                print("bottom")
+                # Only handle jumping if there's no bottom collision
+                if pyxel.btnp(pyxel.KEY_SPACE) or pyxel.btnp(pyxel.KEY_UP):
+                    self.__mario.dy = self.__mario.jump_strength  # Adjust this value for jump strength
+                    self.__mario.jumping = True
+                    print(self.__mario.dy)
+
+            if min_overlap == overlap_top:
+                self.__mario.y = block.y + self.__mario.height
+
+        for enemy in self.enemies:
+            if self.check_collisions(self.__mario, enemy):
+                overlap_left = (block.x + block.width) - self.__mario.x
+                overlap_right = (self.__mario.x + self.__mario.width) - block.x
+                overlap_top = (block.y + block.height) - self.__mario.y
+                overlap_bottom = (self.__mario.y + self.__mario.height) - block.y
+
+                min_overlap = min(overlap_left, overlap_right, overlap_top, overlap_bottom)
+
+                if min_overlap == overlap_left:
+                    self.__mario.x = block.x + self.__mario.width
+
+                if min_overlap == overlap_right:
+                    self.__mario.x = block.x - self.__mario.width
+
+                if min_overlap == overlap_bottom:
+                    self.__mario.y = block.y - self.__mario.height
+                    self.__mario.dy = 0
+                    print("bottom")
+                    # Only handle jumping if there's no bottom collision
+                    if pyxel.btnp(pyxel.KEY_SPACE) or pyxel.btnp(pyxel.KEY_UP):
+                        self.__mario.dy = self.__mario.jump_strength  # Adjust this value for jump strength
+                        self.__mario.jumping = True
+                        print(self.__mario.dy)
+
+                if min_overlap == overlap_top:
+                    self.__mario.y = block.y + self.__mario.height
+
+            for enemy in self.enemies:
+                if self.check_collisions(self.__mario, enemy):
+                    overlap_left = (enemy.x + enemy.width) - self.__mario.x
+                    overlap_right = (self.__mario.x + self.__mario.width) - enemy.x
+                    overlap_top = (enemy.y + enemy.height) - self.__mario.y
+                    overlap_bottom = (self.__mario.y + self.__mario.height) - enemy.y
+
+                    min_overlap = min(overlap_left, overlap_right, overlap_top, overlap_bottom)
+
+                    if min_overlap == overlap_left:
+                        self.__mario.x = enemy.x + self.__mario.width
+                        print("HIT")
+                    if min_overlap == overlap_right:
+                        self.__mario.x = enemy.x - self.__mario.width
+                        print("HIT")
+                    if min_overlap == overlap_bottom:
+                        self.__mario.y = enemy.y - self.__mario.height
+                        self.__mario.dy = 0
+                        print("HIT")
+                        # Only handle jumping if there's no bottom collision
+                        if pyxel.btnp(pyxel.KEY_SPACE) or pyxel.btnp(pyxel.KEY_UP):
+                            self.__mario.dy = self.__mario.jump_strength  # Adjust this value for jump strength
+                            self.__mario.jumping = True
+                            print("HIT")
+
+                    if min_overlap == overlap_top:
+                        self.__mario.y = enemy.y + self.__mario.height
+                        print("HIT")
+
     def update(self):
         self.__mario.update()
-        # self.check_all_collisions()
 
+        for block_info in Constants.BLOCK_INITIAL:
+            block_x, block_y, block_type = block_info
+            block = Block(block_x, block_y, block_type)
+            self.check_all_collisions(block)
 
         for enemy in self.enemies:
             # Removes the enemy if it has 0 lives
@@ -72,38 +166,3 @@ class Board:
             self.enemies.append(Crab(random.choice([0, 256]), random.choice([134, 34])))
         if random.randint(0, 1200) == 1:
             pass
-    #
-    # def check_all_collisions(self):
-    #     for block in self.blocks:
-    #         # self.blocks.x, self.blocks.y, self.blocks.block_type = block_info
-    #         # block = Block(self.blocks.x, self.blocks.y, self.blocks.block_type)
-    #         self.check_collision(block)
-    #
-    # def check_collision(self, block):
-    #     if self.Player.x < block.x + block.width and self.Player.x + self.Player.width > block.x and self.Player.y < block.y + block.height and self.Player.y + self.Player.height > block.y:
-    #         overlap_left = (block.x + block.width) - self.Player.x
-    #         overlap_right = (self.Player.x + self.Player.width) - block.x
-    #         overlap_top = (block.y + block.height) - self.Player.y
-    #         overlap_bottom = (self.Player.y + self.Player.height) - block.y
-    #         min_overlap = min(overlap_left, overlap_right, overlap_top, overlap_bottom)
-    #
-    #         if min_overlap == overlap_left and self.Player.dx > 0:
-    #             self.Player.x = block.x + self.Player.width
-    #         if min_overlap == overlap_right and self.dx > 0:
-    #             self.Player.x = block.x - self.Player.width
-    #
-    #         if min_overlap == overlap_bottom:  # Ensure the player is landing (not floating in the air)
-    #             print("\n\n\n bottom hit \n\n\n")
-    #             self.y = block.y - self.height
-    #             self.dy = 0
-    #             self.jumping = False
-    #             self.max_dx = 2
-    #             if pyxel.btnp(pyxel.KEY_SPACE) or pyxel.btnp(pyxel.KEY_UP):
-    #                 self.dy += self.jump_strength
-    #                 self.jumping = True
-    #             else:
-    #                 self.y += self.dy
-    #                 self.dy += self.gravity
-    #
-    #         if min_overlap == overlap_top:
-    #             self.y = block.y + self.height
