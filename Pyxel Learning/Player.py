@@ -9,7 +9,9 @@ class Player:
     y (float): y - coordinate of Mario
     """
 
+
     def __init__(self, x, y):
+        self.hit_indicator_timer = 0
         self.x = x
         self.y = y
         self.dx = 0
@@ -22,7 +24,11 @@ class Player:
         self.gravity = 0.5  # Adjust gravity for jumping/falling
         self.jump_strength = -8  # Adjust jump strength
         self.lives = 3
-        self.collision = False
+        self.alive = True
+        self.invincible = False
+        self.invincible_timer = 0
+        self.score = 0
+        self.invincible_timer = 120
 
     @property
     def width(self):
@@ -30,23 +36,24 @@ class Player:
 
     @property
     def height(self):
-        return 16
+        return 24
 
     def update(self):
-        if pyxel.btn(pyxel.KEY_RIGHT):
-            self.running = True
-            self.move("right")
-        elif pyxel.btn(pyxel.KEY_LEFT):
-            self.running = True
-            self.move("left")
-        else:
-            self.running = False
+        if self.alive:
+            if pyxel.btn(pyxel.KEY_RIGHT):
+                self.running = True
+                self.move("right")
+            elif pyxel.btn(pyxel.KEY_LEFT):
+                self.running = True
+                self.move("left")
+            else:
+                self.running = False
 
-        if pyxel.btnp(pyxel.KEY_SPACE) and not self.jumping or pyxel.btnp(pyxel.KEY_UP) and not self.jumping:
-            self.jumping = True
-            self.dy = self.jump_strength
+            if pyxel.btnp(pyxel.KEY_SPACE) and not self.jumping or pyxel.btnp(pyxel.KEY_UP) and not self.jumping:
+                self.jumping = True
+                self.dy = self.jump_strength
 
-        if self.jumping:
+
             self.dy += self.gravity
             self.y += self.dy
             self.max_dx = 1.5
@@ -56,66 +63,46 @@ class Player:
                 self.y = Constants.FLOOR
                 self.dy = 0
 
-        # for block_info in Constants.BLOCK_INITIAL:
-        #     block_x, block_y, block_type = block_info
-        #     block = Block.Block(block_x, block_y, block_type)
-        #     self.check_all_collisions(block)
+            if self.lives == 0:
+                self.alive = False
+                print("DEAD")
+
+            if self.invincible:
+                if pyxel.frame_count % 20 == 0 and self.invincible_timer > 0:
+                    self.invincible_timer -= 1
+                    # Toggles the hit indicator to make it blink
+                elif self.invincible_timer == 0:
+                    self.invincible = False
+                    print('not anymore')
+        else:
+            pass
+
+    def register_hit(self):
+        """Does the necessary actions when the player is hit."""
+        if self.alive:
+            self.lives -= 1
+            if self.lives <= 0:
+                self.alive = False
+                print("SHOULD BE DEAD")# Set the player to not alive if lives reach zero
+            else:
+                self.invincible = True
+                self.invincible_timer = 120
+                print('invincible')
 
     def move(self, direction):
         if direction == "right":
             self.direction = 1
+            self.x = (self.x + self.direction * self.max_dx) % pyxel.width
         elif direction == "left":
             self.direction = -1
+            self.x = (self.x + self.direction * self.max_dx) % pyxel.width
         else:
             self.direction = 0
 
-        # Update velocity based on direction and acceleration
-        self.dx += self.direction * self.acceleration
-
-        # Limit velocity to max velocity
-        self.dx = max(-self.max_dx, min(self.max_dx, self.dx))
-
-        # Update position based on velocity
-        self.x += self.dx
-
-    # def check_collisions(self, block):
-    #     if (
-    #             self.x < block.x + block.width
-    #             and self.x + self.width > block.x
-    #             and self.y < block.y + block.height
-    #             and self.y + self.height > block.y
-    #     ):
-    #         print("hello")
-    #         return True
-    #     else:
-    #         return False
-    #
-    # def check_all_collisions(self, block):
-    #     if self.check_collisions(block):
-    #         overlap_left = (block.x + block.width) - self.x
-    #         overlap_right = (self.x + self.width) - block.x
-    #         overlap_top = (block.y + block.height) - self.y
-    #         overlap_bottom = (self.y + self.height) - block.y
-    #         min_overlap = min(overlap_left, overlap_right, overlap_top, overlap_bottom)
-    #
-    #         if min_overlap == overlap_left and self.dx > 0:
-    #             self.x = block.x + self.width
-    #
-    #         if min_overlap == overlap_right and self.dx > 0:
-    #             self.x = block.x - self.width
-    #
-    #         if min_overlap == overlap_bottom:
-    #             self.y = block.y - self.height
-    #             self.dy = 0
-    #             self.jumping = False
-    #             self.max_dx = 2
-    #             print("bottom Hit")
-    #
-    #             if pyxel.btnp(pyxel.KEY_SPACE) or pyxel.btnp(pyxel.KEY_UP):
-    #                 self.dy += self.jump_strength
-    #                 self.jumping = True
-    #
-    #         if min_overlap == overlap_top:
-    #             self.y = block.y + self.height
     def sprite(self):
-        return Constants.MARIO_SPRITE
+        if self.running:
+            return (0, 16, 8, 16 * self.direction, 24, 0)  # Change these coordinates to match your left running sprite
+        elif self.jumping:
+            return (0, 64, 8, 16 * self.direction, 24, 0) # Change these coordinates to match your left jumping sprite
+        else:
+            return (0, 0, 8, 16 * self.direction, 24, 0) 
