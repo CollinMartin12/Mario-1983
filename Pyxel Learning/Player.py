@@ -9,7 +9,6 @@ class Player:
     y (float): y - coordinate of Mario
     """
 
-
     def __init__(self, x, y):
         self.hit_indicator_timer = 0
         self.x = x
@@ -53,7 +52,6 @@ class Player:
                 self.jumping = True
                 self.dy = self.jump_strength
 
-
             self.dy += self.gravity
             self.y += self.dy
             self.max_dx = 1.5
@@ -79,15 +77,15 @@ class Player:
 
     def register_hit(self):
         """Does the necessary actions when the player is hit."""
-        if self.alive:
-            self.lives -= 1
-            if self.lives <= 0:
-                self.alive = False
-                print("SHOULD BE DEAD")# Set the player to not alive if lives reach zero
-            else:
-                self.invincible = True
-                self.invincible_timer = 120
-                print('invincible')
+          # Set the player to not alive if lives reach zero
+        self.invincible = True
+        self.invincible_timer = 120
+        print('invincible')
+
+        self.lives -= 1
+        if self.lives <= 0:
+            self.alive = False
+            print("SHOULD BE DEAD")
 
     def move(self, direction):
         if direction == "right":
@@ -99,10 +97,11 @@ class Player:
         else:
             self.direction = 0
 
+
     def sprite(self):
         if self.running:
             return (0, 16, 8, 16 * self.direction, 24, 0)  # Change these coordinates to match your left running sprite
         elif self.jumping:
-            return (0, 64, 8, 16 * self.direction, 24, 0) # Change these coordinates to match your left jumping sprite
+            return (0, 64, 8, 16 * self.direction, 24, 0)  # Change these coordinates to match your left jumping sprite
         else:
-            return (0, 0, 8, 16 * self.direction, 24, 0) 
+            return (0, 0, 8, 16 * self.direction, 24, 0)  # Change these coordinates to match your left default sprite
